@@ -1,0 +1,14 @@
+rm(list=ls())
+library(rvest)
+library(httr)
+library(xml2)
+
+a<-GET('https://www.sciencedirect.com/journal/food-policy/vol/99')
+b<-read_html(content(a, as="text"))
+html_text(html_nodes(b, ".js-article-title"))
+
+c<-html_nodes(b, ".cover-image-large")
+d<-html_attr(c, "src")
+download.file(d,destfile="image.gif",method="curl")
+
+getwd()
