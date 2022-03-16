@@ -1,0 +1,30 @@
+rm(list = ls())
+library(tesseract)
+library(tidyverse)
+library(magick)
+
+#eng<-tesseract("eng")
+#text<-tesseract::ocr("1.jpg", engine=eng)
+#cat(text)
+
+# Loop
+all_files<-list.files()
+split<-data.frame(strsplit(all_files,"\\."))[2,] %>% unname() %>% 
+  unlist() %>% table() %>% data.frame() %>% arrange(-Freq)
+to_select<-split[1,1] %>% unname() %>% unlist() %>% droplevels()
+list<-all_files[grepl(to_select,all_files)]
+i=1
+if(file.exists("text.txt")){file.remove("text.txt")}
+for (i in 1:length(list)){
+  print(list[[i]])
+  ####### For old, fuzzy images #################
+  input<-image_read(paste0(list[[i]]))
+  text<-input %>% image_resize("2000x") %>% 
+    image_convert(type='Grayscale') %>% 
+    #image_trim(fuzz=40) %>% #cuts corners
+    image_write(format='png', density='300x300') %>% 
+    tesseract::ocr()
+  #cat(text)
+  #text<-tesseract::ocr(paste0(list[[i]]), engine=tesseract("eng"))
+  write(text,file="text.txt",append=T)
+  }
